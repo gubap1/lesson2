@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch
        
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -15,6 +16,8 @@ jobs:
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-latest
+    outputs:
+      artifact_id: ${{ steps.binary-upload-step.outputs.artifact-id }}
 
     steps:
     - uses: actions/checkout@v4
@@ -28,12 +31,28 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
+    - name: Show targets
+      run: ls -lR ${{github.workspace}}/build
+
+    - uses: actions/upload-artifact@v4
+      id: binary-upload-step
+      with:
+        name: hello-binary
+        path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}/hello
+        if-no-files-found: error
+
+
   publish:
     runs-on: ubuntu-latest
     needs: build
     permissions:
       contents: write
     steps:
-    - uses: ncipollo/release-action@v1.14.0
-      with:
-        artifacts: ${{github.workspace}}/build/Release/hello.exe
+      - env:
+          ARTIFACT_ID: ${{needs.build.outputs.artifact_id}}
+      - uses: actions/download-artifact@v4
+        with:
+          name: hello-binary
+      - uses: ncipollo/release-action@v1.14.0
+        with:
+          artifacts: ${{github.workspace}}/hello
