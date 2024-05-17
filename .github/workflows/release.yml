@@ -31,16 +31,15 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
-    - name: Show targets
-      run: ls -lR ${{github.workspace}}/build
+    - name: Show build directory
+      run: ls -l ${{github.workspace}}/build
 
     - uses: actions/upload-artifact@v4
       id: binary-upload-step
       with:
         name: hello-binary
-        path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}/hello
+        path: ${{github.workspace}}/build/hello
         if-no-files-found: error
-
 
   publish:
     runs-on: ubuntu-latest
