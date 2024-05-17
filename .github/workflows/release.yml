@@ -48,8 +48,6 @@ jobs:
     permissions:
       contents: write
     steps:
-      - env:
-          ARTIFACT_ID: ${{needs.build.outputs.artifact_id}}
       - uses: actions/download-artifact@v4
         with:
           name: hello-binary
