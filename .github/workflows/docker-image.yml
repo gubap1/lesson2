@@ -24,14 +24,24 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-            
+        with:
+          registry-type: public            
+
       - name: Build Docker image
+        env:
+          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+          REGISTRY_ALIAS: ${{ secrets.REGISTRY_ALIAS }}
+          REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
-          IMAGE_TAG=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
+          IMAGE_TAG=$REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest
           docker build -t $IMAGE_TAG .
       
       - name: Push Docker image to ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+          REGISTRY_ALIAS: ${{ secrets.REGISTRY_ALIAS }}
+          REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
-          IMAGE_TAG=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
+          IMAGE_TAG=$REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest
           docker push $IMAGE_TAG
 
