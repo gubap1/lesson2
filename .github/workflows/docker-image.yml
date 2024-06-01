@@ -38,7 +38,7 @@ jobs:
       
       - name: Push Docker image to ECR
         env:
-          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REGISTRY_ALIAS: ${{ secrets.REGISTRY_ALIAS }}
           REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
